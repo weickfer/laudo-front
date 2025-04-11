@@ -1,8 +1,9 @@
+import ReportManager from "./pages/report-manager"
 
 function App() {
   return (
-    <div className="w-full h-screen bg-black">
-      Ola mundo
+    <div className="w-full h-screen">
+      <ReportManager />
     </div>
     // <TooltipProvider>
       // <BrowserRouter>
