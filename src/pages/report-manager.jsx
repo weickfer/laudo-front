@@ -4,10 +4,10 @@ import { useState } from "react"
 import { Button } from "../components/ui/button"
 import { Card } from "../components/ui/card"
 
-import { AnnotationsProvider } from "../../modules/annotations/contexts/annotations"
 import { InspectionForm } from "../components/details-step"
 import { EvidenceStep } from "../components/evidence-step"
 import { LocalizationStep } from "../components/localization-step"
+import { AnnotationsProvider } from "../modules/annotations/contexts/annotations"
 
 export default function ReportManager() {
   const [currentStep, setCurrentStep] = useState(0)

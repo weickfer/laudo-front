@@ -2,9 +2,9 @@ import { Plus } from "lucide-react"
 import React, { useState } from "react"
 import { Label } from "./ui/label"
 
-import { AttachmentInput } from "../../modules/annotations/components/annotation-form/atachment-input"
-import { Attachment } from "../../modules/annotations/components/annotation-form/attachment"
-import { CaptureImage, MapControl, MapProvider, OlMap } from '../../modules/gis-viewer'
+import { AttachmentInput } from "../modules/annotations/components/annotation-form/atachment-input"
+import { Attachment } from "../modules/annotations/components/annotation-form/attachment"
+import { CaptureImage, MapControl, MapProvider, OlMap } from '../modules/gis-viewer'
 
 export function LocalizationStep({ formData, updateFormData }) {
   const [geolocations, setGeolocations] = useState(formData?.geolocations ?? [])

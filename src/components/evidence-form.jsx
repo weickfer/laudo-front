@@ -3,12 +3,12 @@ import { Loader2 } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-import { AttachmentInput } from '../../modules/annotations/components/annotation-form/atachment-input'
-import { Attachment } from '../../modules/annotations/components/annotation-form/attachment'
-import { useAnnotations } from '../../modules/annotations/contexts/annotations'
-import { useToast } from '../../modules/annotations/hooks/use-toast'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
+import { AttachmentInput } from '../modules/annotations/components/annotation-form/atachment-input'
+import { Attachment } from '../modules/annotations/components/annotation-form/attachment'
+import { useAnnotations } from '../modules/annotations/contexts/annotations'
+import { useToast } from '../modules/annotations/hooks/use-toast'
 
 const createImageSchema = z.object({
   // imageName: z.string().nonempty("Nome da imagem é obrigatório"),
