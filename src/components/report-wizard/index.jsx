@@ -1,20 +1,18 @@
 import { Check, ChevronLeft, ChevronRight, FileText, ImageIcon, MapPin } from "lucide-react"
 import { useState } from "react"
 
-import { InspectionForm } from "../components/details-step"
-import { EvidenceStep } from "../components/evidence-step"
-import { LocalizationStep } from "../components/localization-step"
-import { Button } from "../components/ui/button"
-import { Card } from "../components/ui/card"
-import { useToast } from "../hooks/use-toast"
-import { dataURLtoFile } from "../lib/base64-to-file"
-import { AnnotationsProvider } from "../modules/annotations/contexts/annotations"
-import { api } from "../services/api"
+import { useToast } from "../../hooks/use-toast"
+import { EvidenceStep } from "../evidence-step"
+import { LocalizationStep } from "../localization-step"
+import { Button } from "../ui/button"
+import { Card } from "../ui/card"
 
-export default function ReportManager() {
+import { InspectionForm } from "../details-step"
+
+export default function ReportWizard({ initialData, onSubmit }) {
   const { toast } = useToast()
   const [currentStep, setCurrentStep] = useState(0)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(initialData ?? {
     acompanhante: "",
     area: "",
     cobertura: "",
@@ -69,100 +67,11 @@ export default function ReportManager() {
 
   const handleSubmit = async () => {
     try {
-      const { pdf, locationsImage, ...formDataWithoutPdf } = formData
-      const images = {}
-
-      if(pdf) {
-        images[pdf.name] = pdf
-      }
-
-      const geolocations = formData.geolocations.map(location => {
-        const file = dataURLtoFile(location.imageUrl, location.id)
-        images[file.name] = file
-
-        return {
-          coords: location.coords,
-          imagemNome: file.name,
-        }
-      })
-
-      const evidencias = formData.evidencias.map(evidence => {
-        const attachments = evidence.attachments
-        const files = []
-
-        attachments.forEach(attachment => {
-          const file = dataURLtoFile(attachment.url, attachment.id)
-          images[file.name] = file
-          files.push({
-            nome: file.name,
-            vetores: attachment.vectors || [],
-          })
-        })
-
-        return {
-          descricao: evidence.description,
-          ambiente: evidence.environment,
-          local: evidence.location,
-          date: evidence.date,
-          arquivos: files,
-        }
-      })
-
-      const requestBody = {
-        ...formDataWithoutPdf,
-        geolocations,
-        evidencias,
-      }
-
-      toast({
-        title: "Enviando relatório...",
-        description: "Por favor, aguarde enquanto processamos seu relatório.",
-      })
-
-      // const response = await fetch('http://localhost:3000/api/relatorios', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(requestBody),
-      // })
-      const response = await api('/api/relatorios', 'POST', requestBody)
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Erro ao criar relatório')
-      }
-
-      const data = await response.json()
-      const signedUrls = data.signedUrls
-
-      toast({
-        title: "Relatório criado com sucesso!",
-        description: "Agora vamos fazer upload das imagens...",
-      })
-      
-      const uploadImages = async () => {
-        const uploadPromises = Object.entries(images).map(async ([key, file]) => {
-          const signedUrl = signedUrls[key]
-          await fetch(signedUrl, {
-            method: 'PUT',
-            body: file,
-          })
-        })
-        await Promise.all(uploadPromises)
-      }
-      await uploadImages()
-
-      toast({
-        title: "Upload concluído!",
-        description: "Seu relatório foi criado e todas os arquivos foram enviados com sucesso.",
-        variant: "success",
-      })
-
+      await onSubmit(formData)
     } catch (error) {
-      console.error("Error submitting report:", error)
+      console.log(error)
       toast({
-        title: "Erro ao criar relatório",
+        title: "Erro",
         description: error.message || "Ocorreu um erro ao processar seu relatório. Por favor, tente novamente.",
         variant: "destructive",
       })
@@ -170,7 +79,6 @@ export default function ReportManager() {
   }
 
   return (
-    <AnnotationsProvider>
       <div className="flex min-h-screen flex-col md:flex-row">
         <aside className="w-full border-r bg-muted/40 md:w-64">
           <div className="flex flex-col p-4 md:p-6">
@@ -227,6 +135,5 @@ export default function ReportManager() {
           </Card>
         </main>
       </div>
-    </AnnotationsProvider>
   )
 }

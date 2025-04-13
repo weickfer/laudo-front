@@ -2,10 +2,10 @@ import { ArrowUpDown } from "lucide-react";
 import { Button } from "../ui/button";
 
 export const columns = [
-  {
-    accessorKey: "imageName",
-    header: "Nome da imagem",
-  },
+  // {
+  //   accessorKey: "imageName",
+  //   header: "Nome da imagem",
+  // },
   {
     accessorKey: "description",
     header: "Descrição",
@@ -37,14 +37,12 @@ export const columns = [
       if (!value) return "-";
 
       const date = new Date(value);
-      return date.toLocaleString("pt-BR", {
+      return new Intl.DateTimeFormat("pt-BR", {
+        timeZone: "UTC",
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
+      }).format(date);
     },
   },
 ]

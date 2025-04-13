@@ -1,8 +1,43 @@
 import { Camera, Dot, GitBranch, MousePointer2, Spline, Square } from 'lucide-react'
 import { useMap } from '../contexts/map-context'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select'
 
-export function MapControl() {
+const toolConfigs = {
+  Point: {
+    icon: <Dot className="size-8 text-secondary" />,
+    onClickKey: 'toggleDrawPoint',
+  },
+  LineString: {
+    icon: <Spline className="size-6 text-secondary" />,
+    onClickKey: 'toggleDrawLineString',
+  },
+  Polygon: {
+    icon: <GitBranch className="size-6 text-secondary" />,
+    onClickKey: 'toggleDrawPolygon',
+  },
+  Select: {
+    icon: <MousePointer2 className="size-6 text-secondary" />,
+    onClickKey: 'toggleDrawSelect',
+  },
+  Rectangle: {
+    icon: <Square className="size-6 text-secondary" />,
+    onClickKey: 'toggleDrawRectangle',
+  },
+  Camera: {
+    icon: <Camera className='size-6 text-secondary' />,
+    onClickKey: 'handleCapture',
+  }
+}
+
+export function MapControl({ enabledTools = ['Point', 'LineString', 'Polygon', 'Select', 'Rectangle'], onCapture }) {
   const {
     drawType,
     setSelectedLayer,
@@ -11,8 +46,25 @@ export function MapControl() {
     toggleDrawPolygon,
     toggleDrawSelect,
     toggleDrawRectangle,
-    toggleDrawMeasure,
+    mapInstance,
+    screenshotFunction,
   } = useMap()
+
+  const handleCapture = async () => {
+    const imageUrl = await screenshotFunction()
+    const [longitude, latitude] = mapInstance.current.getView().getCenter();
+
+    onCapture({ imageUrl, coords: { latitude, longitude } })
+  }
+
+  const drawHandlers = {
+    toggleDrawPoint,
+    toggleDrawLineString,
+    toggleDrawPolygon,
+    toggleDrawSelect,
+    toggleDrawRectangle,
+    handleCapture,
+  }
 
   return (
     <section className="ml-[260px] flex flex-row gap-3 w-[430px]">
@@ -33,39 +85,42 @@ export function MapControl() {
       </Select>
 
       <div className="w-[250px] flex flex-row gap-0">
-        <button data-selected={drawType === "Point"} onClick={toggleDrawPoint} className="bg-foreground size-9 data-[selected=true]:bg-stone-900 flex items-center justify-center">
-          <Dot className="size-8 text-secondary" />
-        </button>
-        <button data-selected={drawType === "LineString"} onClick={toggleDrawLineString} className="bg-foreground size-9 data-[selected=true]:bg-stone-900 flex items-center justify-center">
-          <Spline className="size-6 text-secondary" />
-        </button>
-        <button data-selected={drawType === "Polygon"} onClick={toggleDrawPolygon} className="bg-foreground size-9 data-[selected=true]:bg-stone-900 flex items-center justify-center">
-          <GitBranch className="size-6 text-secondary" />
-        </button>
-        <button data-selected={drawType === "Select"} onClick={toggleDrawSelect} className="bg-foreground size-9 data-[selected=true]:bg-stone-900 flex items-center justify-center">
-          <MousePointer2 className="size-6 text-secondary" />
-        </button>
-        <button data-selected={drawType === "Rectangle"} onClick={toggleDrawRectangle} className="bg-foreground size-9 data-[selected=true]:bg-stone-900 flex items-center justify-center">
-          <Square className="size-6 text-secondary" />
-        </button>
+        {enabledTools.map((tool) => {
+          const config = toolConfigs[tool]
+          const isSelected = drawType === tool
+          const handleClick = drawHandlers[config.onClickKey]
+
+          return (
+            <button
+              key={tool}
+              data-selected={isSelected}
+              data-camera={config.onClickKey === 'handleCapture'}
+              onClick={handleClick}
+              className="bg-foreground size-9 data-[camera=true]:bg-green-500 data-[selected=true]:bg-stone-900 flex items-center justify-center"
+            >
+              {config.icon}
+            </button>
+          )
+        })}
       </div>
     </section>
   )
 }
 
-export function CaptureImage({ onClick }) {
-  const { screenshotFunction, mapInstance } = useMap()
 
-  const handleClick = async () => {
-    const imageUrl = await screenshotFunction()
-    const [longitude, latitude] = mapInstance.current.getView().getCenter();
+// export function CaptureImage({ onClick }) {
+//   const { screenshotFunction, mapInstance } = useMap()
 
-    onClick({ imageUrl, coords: { latitude, longitude } })
-  }
+//   const handleCapture = async () => {
+//     const imageUrl = await screenshotFunction()
+//     const [longitude, latitude] = mapInstance.current.getView().getCenter();
 
-  return (
-    <button onClick={handleClick} className="bg-foreground size-9 data-[selected=true]:bg-stone-900 flex items-center justify-center">
-      <Camera className="size-8 text-secondary" />
-    </button>
-  )
-}
+//     onClick({ imageUrl, coords: { latitude, longitude } })
+//   }
+
+//   return (
+//     <button onClick={handleCapture} className="bg-foreground size-9 data-[selected=true]:bg-stone-900 flex items-center justify-center">
+//       <Camera className="size-8 text-secondary" />
+//     </button>
+//   )
+// }

@@ -5,22 +5,41 @@ import { Plus } from "lucide-react"
 import { ImageEditorWithTools } from "../modules/annotations/components/image-editor/modal"
 import { useAnnotations } from "../modules/annotations/contexts/annotations"
 import { EvidenceForm } from "./evidence-form"
-import { columns } from "./evidence-table/columns"
-import { DataTable } from "./evidence-table/data-table"
+import { DataTable } from "./tables/data-table"
+import { columns } from "./tables/evidence-columns"
 
 export function EvidenceStep({ formData, updateFormData }) {
-  const [evidenceList, setEvidenceList] = useState(formData.evidence ?? [])
+  const [evidenceList, setEvidenceList] = useState(formData.evidencias ?? [])
   const [showForm, setShowForm] = useState(false)
-  const { currentAttachment, updateAttachment } = useAnnotations()
+  const { currentAttachment, updateAttachment, addAttachment } = useAnnotations()
+  const [selectedEvidence, setSelectedEvidence] = useState(null)
 
-  const handleAddEvidence = ({ formData }) => {
-    setEvidenceList(state => [...state, formData])
-    updateFormData({ evidence: formData })
+  const handleAddEvidence = ({ formData: evidenceData, type }) => {
+    const actions = {
+      create: () => [...evidenceList, {
+        ...evidenceData,
+        id: evidenceData.id ?? `${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      }],
+      update: () => evidenceList.map(
+        item => item.id === evidenceData.id ? evidenceData : item
+      )
+    }
+    const data = actions[type]()
+
+    setEvidenceList(data)
+    updateFormData({ evidencias: data })
     setShowForm(false)
-    // const updated = [...evidenceList, newEvidence]
-    // setEvidenceList(updated)
-    // updateFormData({ evidence: updated })
-    // setShowForm(false)
+  }
+
+  const handleCloseForm = () => {
+    setShowForm(false)
+    setSelectedEvidence(null)
+  }
+
+  const handleSelectEvidenceForm = (evidence) => {
+    addAttachment(evidence?.attachments ?? [])
+    setShowForm(true)
+    setSelectedEvidence(evidence)
   }
 
   return (
@@ -38,19 +57,19 @@ export function EvidenceStep({ formData, updateFormData }) {
 
       {showForm && (
         <div className={currentAttachment?.url && 'hidden'}>
-          <EvidenceForm onSave={handleAddEvidence} onClose={() => setShowForm(false)} />
+          <EvidenceForm onSave={handleAddEvidence} onClose={handleCloseForm} fields={selectedEvidence} />
         </div>
       )}
 
       {currentAttachment?.url && (
-          <ImageEditorWithTools
+        <ImageEditorWithTools
           imageUrl={currentAttachment?.url}
           onSave={updateAttachment}
           vectors={currentAttachment?.vectors}
         />
       )}
 
-      <DataTable data={evidenceList} columns={columns} />
+      <DataTable data={evidenceList} columns={columns} onSelect={handleSelectEvidenceForm} />
     </div>
   )
 }

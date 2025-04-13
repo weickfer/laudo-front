@@ -15,12 +15,12 @@ export function InspectionForm({ formData, updateFormData }) {
         <h2 className="text-lg font-medium">Dados Gerais da Vistoria</h2>
 
         <div className="grid gap-3">
-          <Label htmlFor="idIndex">ID do Imóvel/Vistoria</Label>
+          <Label htmlFor="idImovel">ID do Imóvel</Label>
           <Input
-            id="idIndex"
+            id="idImovel"
             placeholder="Número de referência"
-            value={formData.idIndex}
-            onChange={(e) => updateFormData({ idIndex: e.target.value })}
+            value={formData.idImovel}
+            onChange={(e) => updateFormData({ idImovel: e.target.value })}
           />
         </div>
 
@@ -33,14 +33,24 @@ export function InspectionForm({ formData, updateFormData }) {
             onChange={(e) => updateFormData({ acompanhante: e.target.value })}
           />
         </div>
+        
+        <div className="grid gap-3">
+          <Label htmlFor="perito">Perito</Label>
+          <Input
+            id="perito"
+            placeholder="Nome do perito"
+            value={formData.perito}
+            onChange={(e) => updateFormData({ perito: e.target.value })}
+          />
+        </div>
 
         <div className="grid gap-3">
-          <Label htmlFor="createdAt">Data da Vistoria</Label>
+          <Label htmlFor="proprietario">Proprietário</Label>
           <Input
-            id="createdAt"
-            type="date"
-            value={formData.createdAt}
-            onChange={(e) => updateFormData({ createdAt: e.target.value })}
+            id="proprietario"
+            placeholder="Nome do proprietário"
+            value={formData.proprietario}
+            onChange={(e) => updateFormData({ proprietario: e.target.value })}
           />
         </div>
       </section>
@@ -56,16 +66,6 @@ export function InspectionForm({ formData, updateFormData }) {
             placeholder="Rua, número, bairro, UF"
             value={formData.endereco}
             onChange={(e) => updateFormData({ endereco: e.target.value })}
-          />
-        </div>
-
-        <div className="grid gap-3">
-          <Label htmlFor="proprietario">Proprietário</Label>
-          <Input
-            id="proprietario"
-            placeholder="Nome do proprietário"
-            value={formData.proprietario}
-            onChange={(e) => updateFormData({ proprietario: e.target.value })}
           />
         </div>
 
@@ -104,15 +104,15 @@ export function InspectionForm({ formData, updateFormData }) {
         <div className="grid gap-3">
           <Label>Infraestrutura Urbana</Label>
           <div className="flex flex-wrap gap-3">
-            {["Pavimentação", "Água", "Esgoto", "Iluminação Pública"].map((item) => (
+            {["Água encanada", "Esgoto", "Energia elétrica", "Iluminação pública", "Pavimentação"].map((item) => (
               <label key={item} className="flex items-center gap-2">
                 <Checkbox
-                  checked={formData.infraestruturaUrbana?.includes(item)}
+                  checked={formData.infraestruturas?.includes(item)}
                   onCheckedChange={(checked) =>
                     updateFormData({
-                      infraestruturaUrbana: checked
-                        ? [...(formData.infraestruturaUrbana || []), item]
-                        : formData.infraestruturaUrbana.filter((i) => i !== item),
+                      infraestruturas: checked
+                        ? [...(formData.infraestruturas || []), item]
+                        : formData.infraestruturas.filter((i) => i !== item),
                     })
                   }
                 />
@@ -125,7 +125,7 @@ export function InspectionForm({ formData, updateFormData }) {
         <div className="grid gap-3">
           <Label>Serviços Comunitários</Label>
           <div className="flex flex-wrap gap-3">
-            {["Coleta de lixo", "Escola", "Posto de saúde", "Transporte"].map((item) => (
+            {["Escola", "Posto de saúde", "Comércio", "Transporte público", "Áreas de lazer"].map((item) => (
               <label key={item} className="flex items-center gap-2">
                 <Checkbox
                   checked={formData.servicosComunitarios?.includes(item)}
@@ -148,19 +148,18 @@ export function InspectionForm({ formData, updateFormData }) {
       <section className="space-y-4">
         <h2 className="text-lg font-medium">Caracterização do Imóvel</h2>
 
-        {/* 🟢 Terreno */}
         <div className="grid gap-3">
-          <Label htmlFor="dimensoes">Dimensões (frente, fundo, lados)</Label>
+          <Label htmlFor="dimensoes">Dimensões</Label>
           <Input
             id="dimensoes"
-            placeholder="Ex: 10x20m"
+            placeholder="Ex: 10m x 15m"
             value={formData.dimensoes}
             onChange={(e) => updateFormData({ dimensoes: e.target.value })}
           />
         </div>
 
         <div className="grid gap-3">
-          <Label htmlFor="forma">Forma do Terreno</Label>
+          <Label htmlFor="forma">Forma</Label>
           <Input
             id="forma"
             placeholder="Ex: retangular"
@@ -173,9 +172,11 @@ export function InspectionForm({ formData, updateFormData }) {
           <Label htmlFor="area">Área</Label>
           <Input
             id="area"
+            type="number"
+            step="0.01"
             placeholder="Ex: 70m²"
             value={formData.area}
-            onChange={(e) => updateFormData({ area: e.target.value })}
+            onChange={(e) => updateFormData({ area: parseFloat(e.target.value) })}
           />
         </div>
 
@@ -183,50 +184,39 @@ export function InspectionForm({ formData, updateFormData }) {
           <Label htmlFor="fracaoIdeal">Fração Ideal</Label>
           <Input
             id="fracaoIdeal"
-            placeholder="Ex: 1.00"
+            placeholder="Ex: 1/4"
             value={formData.fracaoIdeal}
             onChange={(e) => updateFormData({ fracaoIdeal: e.target.value })}
           />
         </div>
 
-        {/* 🟢 Imóvel */}
-        <div className="grid gap-3">
-          <Label htmlFor="tipoImovel">Tipo de Imóvel</Label>
-          <Input
-            id="tipoImovel"
-            placeholder="Ex: casa"
-            value={formData.tipoImovel}
-            onChange={(e) => updateFormData({ tipoImovel: e.target.value })}
-          />
-        </div>
-
-        <div className="grid gap-3">
-          <Label htmlFor="usoImovel">Uso do Imóvel</Label>
-          <Input
-            id="usoImovel"
-            placeholder="Ex: residencial"
-            value={formData.usoImovel}
-            onChange={(e) => updateFormData({ usoImovel: e.target.value })}
-          />
-        </div>
-
         <div className="grid gap-3">
           <Label htmlFor="estadoConservacao">Estado de Conservação</Label>
-          <Input
-            id="estadoConservacao"
-            placeholder="Ex: regular"
+          <Select
             value={formData.estadoConservacao}
-            onChange={(e) => updateFormData({ estadoConservacao: e.target.value })}
-          />
+            onValueChange={(value) => updateFormData({ estadoConservacao: value })}
+          >
+            <SelectTrigger id="estadoConservacao">
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Excelente">Excelente</SelectItem>
+              <SelectItem value="Bom">Bom</SelectItem>
+              <SelectItem value="Regular">Regular</SelectItem>
+              <SelectItem value="Ruim">Ruim</SelectItem>
+              <SelectItem value="Péssimo">Péssimo</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="idadeReal">Idade Real</Label>
           <Input
             id="idadeReal"
+            type="number"
             placeholder="Ex: 20 anos"
             value={formData.idadeReal}
-            onChange={(e) => updateFormData({ idadeReal: e.target.value })}
+            onChange={(e) => updateFormData({ idadeReal: parseInt(e.target.value) })}
           />
         </div>
 
@@ -234,27 +224,35 @@ export function InspectionForm({ formData, updateFormData }) {
           <Label htmlFor="idadeAparente">Idade Aparente</Label>
           <Input
             id="idadeAparente"
+            type="number"
             placeholder="Ex: 15 anos"
             value={formData.idadeAparente}
-            onChange={(e) => updateFormData({ idadeAparente: e.target.value })}
+            onChange={(e) => updateFormData({ idadeAparente: parseInt(e.target.value) })}
           />
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="padraoConstrucao">Padrão de Construção</Label>
-          <Input
-            id="padraoConstrucao"
-            placeholder="Ex: médio/baixo"
+          <Select
             value={formData.padraoConstrucao}
-            onChange={(e) => updateFormData({ padraoConstrucao: e.target.value })}
-          />
+            onValueChange={(value) => updateFormData({ padraoConstrucao: value })}
+          >
+            <SelectTrigger id="padraoConstrucao">
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Alto">Alto</SelectItem>
+              <SelectItem value="Medio">Médio</SelectItem>
+              <SelectItem value="Baixo">Baixo</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="fundacoes">Fundações</Label>
           <Input
             id="fundacoes"
-            placeholder="Ex: não identificadas"
+            placeholder="Ex: alvenaria de pedra"
             value={formData.fundacoes}
             onChange={(e) => updateFormData({ fundacoes: e.target.value })}
           />
@@ -264,7 +262,7 @@ export function InspectionForm({ formData, updateFormData }) {
           <Label htmlFor="estrutura">Estrutura</Label>
           <Input
             id="estrutura"
-            placeholder="Ex: concreto armado"
+            placeholder="Ex: alvenaria"
             value={formData.estrutura}
             onChange={(e) => updateFormData({ estrutura: e.target.value })}
           />
@@ -274,7 +272,7 @@ export function InspectionForm({ formData, updateFormData }) {
           <Label htmlFor="fechamento">Fechamento</Label>
           <Input
             id="fechamento"
-            placeholder="Ex: alvenaria de blocos"
+            placeholder="Ex: alvenaria com reboco"
             value={formData.fechamento}
             onChange={(e) => updateFormData({ fechamento: e.target.value })}
           />
@@ -284,7 +282,7 @@ export function InspectionForm({ formData, updateFormData }) {
           <Label htmlFor="cobertura">Cobertura</Label>
           <Input
             id="cobertura"
-            placeholder="Ex: cerâmica"
+            placeholder="Ex: telha cerâmica"
             value={formData.cobertura}
             onChange={(e) => updateFormData({ cobertura: e.target.value })}
           />

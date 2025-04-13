@@ -1,0 +1,5 @@
+- [x] Listar os arquivos do relatório
+- [x] Ao criar o laudo, o user deve ser redirecionado para /reports/{id}
+- [] Tela de listagem de todos os laudos criados
+- [] Edição de laudo
+- [] Impressão do laudo em  docx

@@ -3,13 +3,17 @@ import { SidebarProvider } from "../../contexts/sidebar";
 import { Modal } from "../modal";
 import { Sidebar } from "./sidebar";
 
-export function ImageEditorWithTools({ imageUrl, vectors, onSave }) {
+export function ImageEditorWithTools({ imageUrl, vectors, onSave, sidebarEnabled = true }) {
   return (
     <SidebarProvider>
       <div className="flex flex-row">
-        <div className="flex flex-col">
-          <Sidebar />
-        </div>
+        {
+          sidebarEnabled && (
+            <div className="flex flex-col">
+              <Sidebar />
+            </div>
+          )
+        }
         <div className="mx-auto">
           <ImageEditorCore url={imageUrl} cachedVectors={vectors} onSubmit={onSave} />
         </div>
@@ -18,14 +22,14 @@ export function ImageEditorWithTools({ imageUrl, vectors, onSave }) {
   )
 }
 
-export function ImageEditorModal({ modalIsOpen, onClose, imageUrl, vectors = [], onSave }) {
+export function ImageEditorModal({ modalIsOpen, onClose, imageUrl, vectors = [], onSave, sidebarEnabled = true }) {
   return (
     <Modal
       title="Editar marcação"
       isOpen={modalIsOpen}
       onClose={onClose}
     >
-      <ImageEditorWithTools imageUrl={imageUrl} vectors={vectors} onSave={onSave} /> 
+      <ImageEditorWithTools sidebarEnabled={sidebarEnabled} imageUrl={imageUrl} vectors={vectors} onSave={onSave} /> 
     </Modal>
   )
 }
