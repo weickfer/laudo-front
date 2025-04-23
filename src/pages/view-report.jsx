@@ -115,7 +115,7 @@ export function ViewReport() {
   }
 
 
-  const environmentsLabels = data.evidencias.map(evidence => evidence.ambiente)
+  const environmentsLabels = [...new Set(data.evidencias.map(evidence => evidence.ambiente))]
 
   const evidencesByEnvironment = data.evidencias.reduce((acc, evidence) => {
     if (!acc[evidence.ambiente]) {
@@ -387,7 +387,7 @@ export function ViewReport() {
                 <h2 className="text-xl font-semibold text-blue-900 mb-4">Evidências</h2>
 
                 <Tabs defaultValue="sala" className="w-full">
-                  <TabsList className="grid grid-cols-4 mb-4">
+                  <TabsList className="grid grid-cols-4 mb-2">
                     {
                       environmentsLabels?.map(environment => (
                         <TabsTrigger value={environment}>{environment}</TabsTrigger>
@@ -398,7 +398,7 @@ export function ViewReport() {
                   {
                     flatEvidences?.map(evidence => {
                       return (
-                        <TabsContent value={evidence.ambiente} className="mt-0">
+                        <TabsContent value={evidence.ambiente} className="mt-2">
                           <Card className="p-4">
                             <div className="mb-4">
                               <p className="text-sm text-gray-600">Data: {new Date(evidence.date).toLocaleDateString()}</p>

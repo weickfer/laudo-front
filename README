@@ -1,5 +1,12 @@
 - [x] Listar os arquivos do relatório
 - [x] Ao criar o laudo, o user deve ser redirecionado para /reports/{id}
-- [] Tela de listagem de todos os laudos criados
-- [] Edição de laudo
-- [] Impressão do laudo em  docx
+- [x] Tela de listagem de todos os laudos criados
+- [x] Edição de laudo
+- [x] Impressão do laudo em  docx
+
+- [x] Ajustar o wizard de criação de laudo
+- [x] Ajustar a inserção de poligons no mapa
+- [x] Abrir mapa na localização do usuário
+- [x] Limpar os poligons do mapa ao tirar uma screenshot
+- [x] Evidências - Local p/ Elemento Construtivo
+- [] Evidências - Tabela na coluna de local para elemento construtivo

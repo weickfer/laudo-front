@@ -9,6 +9,7 @@ import { AttachmentInput } from '../modules/annotations/components/annotation-fo
 import { Attachment } from '../modules/annotations/components/annotation-form/attachment'
 import { useAnnotations } from '../modules/annotations/contexts/annotations'
 import { useToast } from '../modules/annotations/hooks/use-toast'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../modules/gis-viewer/components/ui/select'
 
 const createImageSchema = z.object({
   // imageName: z.string().nonempty("Nome da imagem é obrigatório"),
@@ -152,14 +153,31 @@ export function EvidenceForm({
 
         <div>
           <Label required data-error={!!formState.errors?.location}>
-            Local
+            Elemento Construtivo
           </Label>
-          <Input
-            type="text"
+          <Select
             disabled={readOnly}
-            readOnly={readOnly}
-            {...register("location")}
-          />
+            onValueChange={(value) => {
+              form.setValue("location", value)
+            }}
+            value={form.getValues("location")}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione o elemento construtivo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="Parede">Parede</SelectItem>
+                <SelectItem value="Piso">Piso</SelectItem>
+                <SelectItem value="Teto">Teto</SelectItem>
+                <SelectItem value="Porta">Porta</SelectItem>
+                <SelectItem value="Janela">Janela</SelectItem>
+                <SelectItem value="Estrutura">Estrutura</SelectItem>
+                <SelectItem value="Instalação">Instalação</SelectItem>
+                <SelectItem value="Outro">Outro</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
 
         <div>

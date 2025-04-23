@@ -16,7 +16,7 @@ export const columns = [
   },
   {
     accessorKey: "location",
-    header: "Local",
+    header: "Elemento Construtivo",
   },
   {
     accessorKey: "date",

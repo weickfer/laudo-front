@@ -68,6 +68,13 @@ export function MapProvider({ children }) {
 
     mapInstance.current.addControl(scaleLineControl);
 
+    // Obter a localização do usuário
+    navigator.geolocation.getCurrentPosition(position => {
+      const { latitude, longitude } = position.coords;
+      mapInstance.current.getView().setCenter([longitude, latitude]);
+      mapInstance.current.getView().setZoom(15);
+    });
+
 
     // Adicionar controle de posição do mouse ao mapa
     const mousePositionControl = new MousePosition({
@@ -237,13 +244,10 @@ export function MapProvider({ children }) {
     }
   }, [drawType]);
 
-  // const enableSelect = () => {
-  //   setDrawType("Select");
-  // };
+  const clearDrawLayer = () => {
+    drawSource.current.clear();
+  }
 
-  // const enableSelectRectangle = () => {
-  //   setDrawType("SelectRectangle");
-  // };
   const toggleDrawSelect = () => {
     setDrawType(state => (
       state === 'Select' ? '' : 'Select'
@@ -294,6 +298,7 @@ export function MapProvider({ children }) {
     // enableMeasure,
     // enableSelectRectangle,
     // enableSelect,
+    clearDrawLayer,
     mapInstance,
     screenshotFunction,
     mapRef,

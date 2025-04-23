@@ -97,9 +97,9 @@ export default function ReportWizard({ initialData, onSubmit }) {
                           : "text-foreground/60"
                     }`}
                     onClick={() => {
-                      if (index <= currentStep) {
-                        setCurrentStep(index)
-                      }
+                      setCurrentStep(index)
+                      // if (index <= currentStep) {
+                      // }
                     }}
                   >
                     <div className="flex h-7 w-7 items-center justify-center rounded-full border">

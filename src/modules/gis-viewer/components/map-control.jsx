@@ -48,12 +48,14 @@ export function MapControl({ enabledTools = ['Point', 'LineString', 'Polygon', '
     toggleDrawRectangle,
     mapInstance,
     screenshotFunction,
+    clearDrawLayer
   } = useMap()
 
   const handleCapture = async () => {
     const imageUrl = await screenshotFunction()
     const [longitude, latitude] = mapInstance.current.getView().getCenter();
 
+    clearDrawLayer()
     onCapture({ imageUrl, coords: { latitude, longitude } })
   }
 

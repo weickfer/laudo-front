@@ -3,15 +3,12 @@ import { Button } from "./ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogTitle
 } from "./ui/dialog"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
-import { Textarea } from "./ui/textarea"
 
 
 function Point({ points }) {
@@ -51,7 +48,7 @@ const drawLabelMapper = {
 
 
 export function FeatureDialog() {
-  const { 
+  const {
     dialogOpen,
     handleDialogClose,
     currentPoints: points,
@@ -61,13 +58,12 @@ export function FeatureDialog() {
 
   return (
     <Dialog open={dialogOpen} onOpenChange={value => value === false && handleDialogClose(false)}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Adicionar empreendimento</DialogTitle>
-          <DialogDescription>
-            Insira os dados do empreendimento abaixo. Por favor, preencha todas as informações necessárias:
-          </DialogDescription>
+          <DialogTitle>Adicionar feição</DialogTitle>
         </DialogHeader>
+
+        {/* 
 
         <div className="flex flex-row gap-10">
           <div className="flex w-[340px] flex-col gap-4">
@@ -101,7 +97,7 @@ export function FeatureDialog() {
               </tbody>
             </table>
           </div>
-        </div>
+        </div> */}
 
         <DialogFooter>
           <Button variant="destructive" onClick={() => handleDialogClose(false)}>Cancelar</Button>

@@ -1,4 +1,9 @@
-export const API_URL = 'https://relatorio-tgkc.onrender.com' //'http://localhost:3000'
+const isDeveloping = import.meta.env.MODE === 'development'
+
+const API_URL =
+  isDeveloping
+    ? 'http://localhost:3000' 
+    : 'https://relatorio-tgkc.onrender.com'
 
 export async function api(path, method = 'GET', body = null) {
   const response = await fetch(`${API_URL}${path}`, {
