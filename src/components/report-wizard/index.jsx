@@ -7,12 +7,16 @@ import { LocalizationStep } from "../localization-step"
 import { Button } from "../ui/button"
 import { Card } from "../ui/card"
 
+import { useParams } from "react-router"
+import { api } from "../../services/api"
 import { InspectionForm } from "../details-step"
 
 export default function ReportWizard({ initialData, onSubmit }) {
   const { toast } = useToast()
+  const { id: reportId } = useParams()
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState(initialData ?? {
+    id: reportId,
     acompanhante: "",
     area: "",
     cobertura: "",
@@ -53,9 +57,38 @@ export default function ReportWizard({ initialData, onSubmit }) {
     setFormData((prev) => ({ ...prev, ...data }))
   }
 
-  const goToNextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
+  const goToNextStep = async () => {
+    if (!(currentStep < steps.length - 1)) return
+
+    const nextStep = currentStep + 1
+    setCurrentStep(nextStep)
+
+    if(nextStep === 2) {
+      const inspectionData = {
+        idImovel: formData.idImovel,
+        acompanhante: formData.acompanhante,
+        perito: formData.perito,
+        proprietario: formData.proprietario,
+        endereco: formData.endereco,
+        estadoOcupacao: formData.estadoOcupacao,
+        usoPredominante: formData.usoPredominante,
+        infraestruturas: formData.infraestruturas,
+        servicosComunitarios: formData.servicosComunitarios,
+        dimensoes: formData.dimensoes,
+        forma: formData.forma,
+        area: formData.area,
+        fracaoIdeal: formData.fracaoIdeal,
+        estadoConservacao: formData.estadoConservacao,
+        idadeReal: formData.idadeReal,
+        idadeAparente: formData.idadeAparente,
+        padraoConstrucao: formData.padraoConstrucao,
+        fundacoes: formData.fundacoes,
+        estrutura: formData.estrutura,
+        fechamento: formData.fechamento,
+        cobertura: formData.cobertura,
+      }
+
+      const response = await api(`/api/v2/relatorios/${reportId}`, 'PATCH', inspectionData)
     }
   }
 

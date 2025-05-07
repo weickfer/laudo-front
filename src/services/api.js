@@ -14,6 +14,8 @@ export async function api(path, method = 'GET', body = null) {
     }
   })
 
+  if(!response.ok) return null
+
   const data = await response.json()
   
   return data

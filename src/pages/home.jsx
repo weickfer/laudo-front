@@ -1,7 +1,7 @@
 import { ClipboardList, PlusCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import { Link, useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import { DataTable } from "../components/tables/data-table"
 import { columns } from "../components/tables/reports-columns"
 import { Button } from "../components/ui/button"
@@ -21,6 +21,14 @@ export function Home() {
     navigate(`/reports/${id}/view`)
   }
 
+  const handleCreateReport = async () => {
+    const response = await api('/api/v2/relatorios/', 'POST')
+
+    const reportId = response?.relatorioId
+
+    navigate(`/reports/${reportId}/create`)
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-50">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-white px-4 md:px-6">
@@ -29,12 +37,12 @@ export function Home() {
           <h1 className="text-lg font-semibold">Sistema de Vistorias</h1>
         </div>
         <div className="ml-auto flex items-center gap-4">
-          <Link to="/reports/create">
-            <Button>
+          {/* <Link to="/reports/create"> */}
+            <Button onClick={handleCreateReport}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Novo Relatório
             </Button>
-          </Link>
+          {/* </Link> */}
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

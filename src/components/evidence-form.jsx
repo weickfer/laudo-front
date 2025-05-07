@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
+import { useSearchParams } from 'react-router'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { AttachmentInput } from '../modules/annotations/components/annotation-form/atachment-input'
@@ -10,6 +11,7 @@ import { Attachment } from '../modules/annotations/components/annotation-form/at
 import { useAnnotations } from '../modules/annotations/contexts/annotations'
 import { useToast } from '../modules/annotations/hooks/use-toast'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../modules/gis-viewer/components/ui/select'
+import { api } from '../services/api'
 
 const createImageSchema = z.object({
   // imageName: z.string().nonempty("Nome da imagem é obrigatório"),
@@ -32,6 +34,7 @@ export function EvidenceForm({
     resolver: zodResolver(createImageSchema),
     values: fields,
   })
+  const [searchParams] = useSearchParams()
 
   const { register, handleSubmit, formState } = form
   const { isSubmitting } = formState
@@ -54,16 +57,34 @@ export function EvidenceForm({
     onScreenshotEnd && onScreenshotEnd()
   }
 
-  const handleAddAttachment = (e) => {
+  const handleAddAttachment = async (e) => {
     const file = e?.target?.files?.[0]
     if (file) {
+      const evidencieId = searchParams.get('evidenciaId')
+
+      const response = await api(`/api/v2/evidencias/${evidencieId}/signed-url`, 'POST', {
+        imagemNome: file.name,
+      })
+
+      if (!response) return
+      const id = response.evidenciaArquivoId
       const reader = new FileReader()
       reader.onload = (e) => {
-        const id = `${Date.now()}-${Math.floor(Math.random() * 1000)}`
+        // const id = `${Date.now()}-${Math.floor(Math.random() * 1000)}`
         addAttachment({ id, url: e.target.result, vectors: [] })
       }
       reader.readAsDataURL(file)
-      return
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.onprogress = function (event) {
+        const percent = (event.loaded / event.total) * 100;
+        console.log(`Progresso: ${percent.toFixed(2)}%`);
+      };
+
+      xhr.open("PUT", response.signedUrl);
+      xhr.setRequestHeader("Content-Type", file.type);
+      xhr.send(file);
     }
 
     onScreenshotStart && onScreenshotStart()
@@ -82,8 +103,11 @@ export function EvidenceForm({
   }
 
   const onSubmit = async (data) => {
+    const evidencieId = searchParams.get('evidenciaId')
+    const id = fields?.id ?? evidencieId
+
     await onSave({
-      formData: { ...data, attachments, id: fields?.id },
+      formData: { ...data, attachments, id },
       type: fields?.id ? 'update' : 'create',
     })
   }
@@ -93,7 +117,7 @@ export function EvidenceForm({
   return (
     <FormProvider {...form}>
       <FormComponent className="space-y-4 border rounded-md p-2" onSubmit={handleSubmit(onSubmit)}>
-      <div>
+        <div>
           <label className="block text-sm text-gray-700">Anexar imagens</label>
           <div className="mt-1 w-full flex flex-row gap-2">
             {attachments.map((attachment) => (

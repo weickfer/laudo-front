@@ -1,4 +1,4 @@
-import { Download, FileEdit } from "lucide-react"
+import { Download, FileEdit, Sparkle } from "lucide-react"
 
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router"
@@ -115,9 +115,9 @@ export function ViewReport() {
   }
 
 
-  const environmentsLabels = [...new Set(data.evidencias.map(evidence => evidence.ambiente))]
+  const environmentsLabels = [...new Set(data?.evidencias?.map(evidence => evidence.ambiente))]
 
-  const evidencesByEnvironment = data.evidencias.reduce((acc, evidence) => {
+  const evidencesByEnvironment = data?.evidencias?.reduce((acc, evidence) => {
     if (!acc[evidence.ambiente]) {
       acc[evidence.ambiente] = []
     }
@@ -125,7 +125,7 @@ export function ViewReport() {
     return acc
   }, {})
 
-  const flatEvidences = environmentsLabels.map(environment => evidencesByEnvironment[environment]).flat()
+  const flatEvidences = environmentsLabels?.map(environment => evidencesByEnvironment[environment]).flat()
 
   return (
     <>
@@ -152,6 +152,12 @@ export function ViewReport() {
           <div className="sticky top-0 z-10 bg-white border-b p-4 hidden md:flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-700">Visualização do Laudo</h1>
             <div className="flex gap-2">
+              <Link to={`/reports/${id}/conclusion`}> 
+                <Button variant="outline" size="sm" className="flex items-center gap-1">
+                  <Sparkle className="h-4 w-4" />
+                  <span>Conclusão feita por IA</span>
+                </Button>
+              </Link>
               <Link to={`/reports/${id}/update`}> 
                 <Button variant="outline" size="sm" className="flex items-center gap-1">
                   <FileEdit className="h-4 w-4" />
@@ -356,7 +362,7 @@ export function ViewReport() {
                   <div className="space-y-4">
                     {
                       data.geolocations.map((geolocation, index) => (
-                        <div className="flex flex-col md:flex-row gap-4 border-b pb-4">
+                        <div key={geolocation?.id} className="flex flex-col md:flex-row gap-4 border-b pb-4">
                           <div className="w-full md:w-32 h-24 bg-gray-200 flex-shrink-0">
                             <img
                               src={geolocation.url}
@@ -390,7 +396,7 @@ export function ViewReport() {
                   <TabsList className="grid grid-cols-4 mb-2">
                     {
                       environmentsLabels?.map(environment => (
-                        <TabsTrigger value={environment}>{environment}</TabsTrigger>
+                        <TabsTrigger key={environment} value={environment}>{environment}</TabsTrigger>
                       ))
                     }
                   </TabsList>
@@ -398,7 +404,7 @@ export function ViewReport() {
                   {
                     flatEvidences?.map(evidence => {
                       return (
-                        <TabsContent value={evidence.ambiente} className="mt-2">
+                        <TabsContent key={evidence.ambiente} value={evidence.ambiente} className="mt-2">
                           <Card className="p-4">
                             <div className="mb-4">
                               <p className="text-sm text-gray-600">Data: {new Date(evidence.date).toLocaleDateString()}</p>
