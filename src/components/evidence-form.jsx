@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Sparkle } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
+import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
@@ -12,6 +13,7 @@ import { useAnnotations } from '../modules/annotations/contexts/annotations'
 import { useToast } from '../modules/annotations/hooks/use-toast'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../modules/gis-viewer/components/ui/select'
 import { api } from '../services/api'
+import { buttonVariants } from './ui/button'
 
 const createImageSchema = z.object({
   // imageName: z.string().nonempty("Nome da imagem é obrigatório"),
@@ -34,9 +36,14 @@ export function EvidenceForm({
     resolver: zodResolver(createImageSchema),
     values: fields,
   })
+  const descriptionRef = useRef(null)
   const [searchParams] = useSearchParams()
+  const [descriptionIALoading, setDescriptionIALoading] = useState(false)
 
   const { register, handleSubmit, formState } = form
+  const description = form.watch('description')
+  const hasDescription = description?.length > 3
+
   const { isSubmitting } = formState
 
   const {
@@ -70,7 +77,6 @@ export function EvidenceForm({
       const id = response.evidenciaArquivoId
       const reader = new FileReader()
       reader.onload = (e) => {
-        // const id = `${Date.now()}-${Math.floor(Math.random() * 1000)}`
         addAttachment({ id, url: e.target.result, vectors: [] })
       }
       reader.readAsDataURL(file)
@@ -80,6 +86,10 @@ export function EvidenceForm({
       xhr.upload.onprogress = function (event) {
         const percent = (event.loaded / event.total) * 100;
         console.log(`Progresso: ${percent.toFixed(2)}%`);
+      };
+
+      xhr.upload.onload = async function () {
+        await api(`/api/v2/ai/evidencia-arquivo/${id}/gerar`, 'POST')
       };
 
       xhr.open("PUT", response.signedUrl);
@@ -102,6 +112,14 @@ export function EvidenceForm({
     })
   }
 
+  const handleDescriptionChange = () => {
+    const el = descriptionRef.current;
+    if(!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';    
+  }
+  handleDescriptionChange()
+
   const onSubmit = async (data) => {
     const evidencieId = searchParams.get('evidenciaId')
     const id = fields?.id ?? evidencieId
@@ -110,6 +128,29 @@ export function EvidenceForm({
       formData: { ...data, attachments, id },
       type: fields?.id ? 'update' : 'create',
     })
+  }
+
+  const handleCompleteDescription = async () => {
+    if(!hasDescription || descriptionIALoading) return;
+    const evidencieId = searchParams.get('evidenciaId')
+    const id = fields?.id?? evidencieId
+    const environment = form.getValues('environment')
+    const location = form.getValues('location')
+
+    setDescriptionIALoading(true)
+
+    const response = await api(`/api/v2/ai/evidencia/${id}/melhorar-descricao`, 'POST', {
+      description,
+      environment,
+      location,
+    })
+
+    setDescriptionIALoading(false)
+
+    if(response?.description) {
+      form.setValue('description', response.description)
+      handleDescriptionChange()
+    }
   }
 
   const FormComponent = readOnly ? 'div' : 'form'
@@ -154,13 +195,34 @@ export function EvidenceForm({
           <Label required data-error={!!formState.errors?.description}>
             Descrição
           </Label>
-          <textarea
-            rows={3}
-            disabled={readOnly}
-            readOnly={readOnly}
-            className="w-full border rounded p-2"
-            {...register("description")}
-          />
+          <div className="flex items-end flex-col p-2 border rounded border-gray-300 transition focus-within:border-blue-500 focus-within:shadow-md">
+            <textarea
+              rows={1}
+              {...register("description")}
+              ref={(e) => {
+                descriptionRef.current = e
+                register('description').ref(e)
+              }}
+              onInput={handleDescriptionChange}
+              disabled={readOnly}
+              readOnly={readOnly}
+              className="w-full overflow-hidden resize-none bg-transparent p-0 m-0 outline-none border-none"
+              // onChange={handleDescriptionChange}
+            />
+
+            <div data-disabled={!hasDescription} onClick={handleCompleteDescription} className={buttonVariants({
+              className: "data-[disabled=true]:cursor-not-allowed data-[disabled=true]:bg-gray-500 data-[disabled=true]:hover:bg-gray-500"
+            })}>
+              {
+                descriptionIALoading ? "Carregando..." : (
+                  <>
+                  <Sparkle className="h-4 w-4" />
+                  Melhorar texto
+                  </>
+                )
+              }
+            </div>
+          </div>
         </div>
 
         <div>
@@ -180,11 +242,11 @@ export function EvidenceForm({
             Elemento Construtivo
           </Label>
           <Select
-            disabled={readOnly}
+            // disabled={readOnly} 
             onValueChange={(value) => {
               form.setValue("location", value)
             }}
-            value={form.getValues("location")}
+            defaultValue={form.getValues("location")}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione o elemento construtivo" />

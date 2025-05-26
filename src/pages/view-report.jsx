@@ -1,11 +1,14 @@
-import { Download, FileEdit, Sparkle } from "lucide-react"
+import { Download, FileEdit } from "lucide-react"
 
 import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router"
+import { Link, useNavigate, useParams } from "react-router"
 import { Button } from "../components/ui/button"
 import { Card } from "../components/ui/card"
 import { Separator } from "../components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import { TopActions } from "../components/view-report/actions"
+import { Conclusion } from "../components/view-report/conclusion"
+import { Sidebar } from "../components/view-report/sidebar"
 import { ImageEditorWithTools } from "../modules/annotations/components/image-editor/modal"
 import { useAnnotations } from "../modules/annotations/contexts/annotations"
 import { api, API_URL } from "../services/api"
@@ -38,11 +41,12 @@ const mapperExtension = {
 
 export function ViewReport() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [data, setData] = useState(null)
   const { currentAttachment, deselectAttachment, selectAttachment } = useAnnotations()
 
   useEffect(() => {
-    api(`/api/relatorios/${id}`)
+    api(`/api/v2/relatorios/${id}`)
       .then(data => {
         setData(data)
       })
@@ -56,17 +60,17 @@ export function ViewReport() {
     filename: geolocation.url.split('/')?.pop(),
     extension: geolocation.url.split('.')?.pop(),
   }))
-  const pdfFile = {
+  const pdfFile = data?.pdfUrl ? {
     url: data.pdfUrl,
-    filename: data.pdfUrl.split('/')?.pop(),
-    extension: data.pdfUrl.split('.')?.pop(),
-  }
+    filename: data.pdfUrl?.split('/')?.pop(),
+    extension: data.pdfUrl?.split('.')?.pop(),
+  } : null
   const evidencesFiles = data.evidencias.map(evidence => evidence.arquivos)?.flat().map(
     arquivo => ({
       id: arquivo.id,
       url: arquivo.url,
-      filename: arquivo.url.split('/')?.pop(),
-      extension: arquivo.url.split('.')?.pop(),
+      filename: arquivo.url?.split('/')?.pop(),
+      extension: arquivo.url?.split('.')?.pop(),
     })
   )
 
@@ -127,6 +131,13 @@ export function ViewReport() {
 
   const flatEvidences = environmentsLabels?.map(environment => evidencesByEnvironment[environment]).flat()
 
+  const handleOpenEvidence = (evidence) => {
+    if(!evidence) return
+
+    const url = `/reports/${id}/update?evidenciaId=${evidence.id}&step=2`
+    navigate(url)
+  }
+
   return (
     <>
       {
@@ -149,73 +160,10 @@ export function ViewReport() {
       <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 font-serif">
         <div className="max-w-5xl mx-auto bg-white shadow-md">
           {/* Ações fixas no topo */}
-          <div className="sticky top-0 z-10 bg-white border-b p-4 hidden md:flex justify-between items-center">
-            <h1 className="text-xl font-semibold text-gray-700">Visualização do Laudo</h1>
-            <div className="flex gap-2">
-              <Link to={`/reports/${id}/conclusion`}> 
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
-                  <Sparkle className="h-4 w-4" />
-                  <span>Conclusão feita por IA</span>
-                </Button>
-              </Link>
-              <Link to={`/reports/${id}/update`}> 
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
-                  <FileEdit className="h-4 w-4" />
-                  <span>Editar</span>
-                </Button>
-              </Link>
-              <Link to={`${API_URL}/api/relatorios/${id}/generate`} target="_blank">
-                <Button variant="default" size="sm" className="flex items-center gap-1 bg-blue-800 hover:bg-blue-900">
-                  <Download className="h-4 w-4" />
-                  <span>Exportar DOCX</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-
+          <TopActions />
           <div className="flex flex-col md:flex-row">
             {/* Navegação lateral */}
-            <div className="md:w-64 p-4 border-r hidden md:block">
-              <nav className="sticky top-24">
-                <ul className="space-y-2">
-                  <li>
-                    <a href="#cabecalho" className="block text-blue-800 hover:text-blue-600">
-                      Cabeçalho
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#informacoes" className="block text-blue-800 hover:text-blue-600">
-                      Informações do Imóvel
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#caracteristicas" className="block text-blue-800 hover:text-blue-600">
-                      Características Gerais
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#infraestrutura" className="block text-blue-800 hover:text-blue-600">
-                      Infraestrutura Urbana
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#localizacoes" className="block text-blue-800 hover:text-blue-600">
-                      Localizações
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#evidencias" className="block text-blue-800 hover:text-blue-600">
-                      Evidências
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#arquivos" className="block text-blue-800 hover:text-blue-600">
-                      Arquivos
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
+            <Sidebar />
 
             {/* Conteúdo principal */}
             <div className="flex-1 p-6">
@@ -424,7 +372,7 @@ export function ViewReport() {
                                     className="w-full h-full object-cover"
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                    <Button variant="secondary" size="sm" className="text-xs" onClick={() => selectAttachment(arquivo)}>
+                                    <Button variant="secondary" size="sm" className="text-xs" onClick={() => handleOpenEvidence(evidence)}>
                                       Ampliar
                                     </Button>
                                   </div>
@@ -436,185 +384,12 @@ export function ViewReport() {
                       )
                     })
                   }
-
-                  {/* <TabsContent value={environmentsLabels?.[0]} className="mt-0">
-                  <Card className="p-4">
-                    <div className="mb-4">
-                      <h3 className="font-medium">{data.evidencias[0].ambiente}</h3>
-                      <p className="text-sm text-gray-600">Data: {new Date(data.evidencias[0].date).toLocaleDateString()}</p>
-                      <p className="text-sm text-gray-700 mt-2">
-                        {data.evidencias[0].descricao}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {data.evidencias[0].arquivos.map((arquivo) => (
-                        <div key={arquivo.id} className="aspect-square bg-gray-200 relative group">
-                          <img
-                            src={arquivo.url}
-                            alt="Evidência"
-                            width={150}
-                            height={150}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <Button variant="secondary" size="sm" className="text-xs">
-                              Ampliar
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </TabsContent> */}
-
-                  {/* <TabsContent value="cozinha" className="mt-0">
-                <Card className="p-4">
-                  <div className="mb-4">
-                    <h3 className="font-medium">Cozinha</h3>
-                    <p className="text-sm text-gray-600">Data: 12/04/2025</p>
-                    <p className="text-sm text-gray-700 mt-2">
-                      Inspeção da cozinha identificou infiltração no teto próximo à tubulação da pia. Possível
-                      vazamento na tubulação hidráulica do andar superior.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="aspect-square bg-gray-200 relative group">
-                      <img
-                        src="/placeholder.svg?height=150&width=150"
-                        alt="Evidência 1"
-                        width={150}
-                        height={150}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Button variant="secondary" size="sm" className="text-xs">
-                          Ampliar
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="aspect-square bg-gray-200 relative group">
-                      <img
-                        src="/placeholder.svg?height=150&width=150"
-                        alt="Evidência 2"
-                        width={150}
-                        height={150}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Button variant="secondary" size="sm" className="text-xs">
-                          Ampliar
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="banheiro" className="mt-0">
-                <Card className="p-4">
-                  <div className="mb-4">
-                    <h3 className="font-medium">Banheiro Social</h3>
-                    <p className="text-sm text-gray-600">Data: 12/04/2025</p>
-                    <p className="text-sm text-gray-700 mt-2">
-                      Inspeção do banheiro social identificou rejunte deteriorado no box e sinais de infiltração na
-                      parede adjacente ao chuveiro.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="aspect-square bg-gray-200 relative group">
-                      <img
-                        src="/placeholder.svg?height=150&width=150"
-                        alt="Evidência 1"
-                        width={150}
-                        height={150}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Button variant="secondary" size="sm" className="text-xs">
-                          Ampliar
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="aspect-square bg-gray-200 relative group">
-                      <img
-                        src="/placeholder.svg?height=150&width=150"
-                        alt="Evidência 2"
-                        width={150}
-                        height={150}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Button variant="secondary" size="sm" className="text-xs">
-                          Ampliar
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="aspect-square bg-gray-200 relative group">
-                      <img
-                        src="/placeholder.svg?height=150&width=150"
-                        alt="Evidência 3"
-                        width={150}
-                        height={150}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Button variant="secondary" size="sm" className="text-xs">
-                          Ampliar
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="quarto" className="mt-0">
-                <Card className="p-4">
-                  <div className="mb-4">
-                    <h3 className="font-medium">Quarto Principal</h3>
-                    <p className="text-sm text-gray-600">Data: 12/04/2025</p>
-                    <p className="text-sm text-gray-700 mt-2">
-                      Inspeção do quarto principal identificou manchas de umidade no teto, próximo à parede externa.
-                      Possível infiltração pela cobertura.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="aspect-square bg-gray-200 relative group">
-                      <img
-                        src="/placeholder.svg?height=150&width=150"
-                        alt="Evidência 1"
-                        width={150}
-                        height={150}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Button variant="secondary" size="sm" className="text-xs">
-                          Ampliar
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="aspect-square bg-gray-200 relative group">
-                      <img
-                        src="/placeholder.svg?height=150&width=150"
-                        alt="Evidência 2"
-                        width={150}
-                        height={150}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Button variant="secondary" size="sm" className="text-xs">
-                          Ampliar
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </TabsContent> */}
                 </Tabs>
               </section>
+
+              <Separator className="my-6" />
+
+              <Conclusion data={data} />
 
               <Separator className="my-6" />
 

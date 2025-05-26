@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button } from "./ui/button"
 // import { EvidenceForm } from "./ev"
 import { Plus } from "lucide-react"
@@ -19,6 +19,15 @@ export function EvidenceStep({ formData, updateFormData }) {
   const [showForm, setShowForm] = useState(false)
   const { currentAttachment, updateAttachment, addAttachment } = useAnnotations()
   const [selectedEvidence, setSelectedEvidence] = useState(null)
+
+  useEffect(() => {
+    const evidenceId = searchParams.get('evidenciaId')
+    const evidence = evidenceList.find(item => item.id === evidenceId)
+
+    if(evidence) {
+      handleSelectEvidenceForm(evidence)
+    }
+  }, [])
 
   const handleAddEvidence = async ({ formData: evidenceData, type }) => {
     const response = await api(`/api/v2/evidencias/${evidenceData.id}`, 'PATCH', {

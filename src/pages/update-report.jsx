@@ -4,6 +4,7 @@ import ReportWizard from "../components/report-wizard";
 import { toast } from "../hooks/use-toast";
 import { dataURLtoFile } from "../lib/base64-to-file";
 import { api } from "../services/api";
+
 export function UpdateReport() {
   const navigate = useNavigate()
   const { id } = useParams()

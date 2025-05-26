@@ -1,5 +1,5 @@
 import { Check, ChevronLeft, ChevronRight, FileText, ImageIcon, MapPin } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { useToast } from "../../hooks/use-toast"
 import { EvidenceStep } from "../evidence-step"
@@ -7,7 +7,7 @@ import { LocalizationStep } from "../localization-step"
 import { Button } from "../ui/button"
 import { Card } from "../ui/card"
 
-import { useParams } from "react-router"
+import { useParams, useSearchParams } from "react-router"
 import { api } from "../../services/api"
 import { InspectionForm } from "../details-step"
 
@@ -15,6 +15,7 @@ export default function ReportWizard({ initialData, onSubmit }) {
   const { toast } = useToast()
   const { id: reportId } = useParams()
   const [currentStep, setCurrentStep] = useState(0)
+  const [searchParams] = useSearchParams()
   const [formData, setFormData] = useState(initialData ?? {
     id: reportId,
     acompanhante: "",
@@ -50,6 +51,12 @@ export default function ReportWizard({ initialData, onSubmit }) {
     { name: "Características Gerais", icon: FileText, component: InspectionForm },
     { name: "Evidências", icon: ImageIcon, component: EvidenceStep },
   ]
+
+  useEffect(() => {
+    if (searchParams.get("step") && currentStep !== parseInt(searchParams.get("step"))) {
+      setCurrentStep(parseInt(searchParams.get("step")))
+    }
+  }, [])
 
   const CurrentStepComponent = steps[currentStep].component
 
