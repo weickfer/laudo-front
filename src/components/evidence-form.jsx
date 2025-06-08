@@ -28,6 +28,7 @@ export function EvidenceForm({
   onClose,
   onSave,
   fields = {},
+
   onScreenshotStart,
   onScreenshotEnd,
   onViewAttachment,
@@ -51,8 +52,21 @@ export function EvidenceForm({
     registerScreenshotFunction,
     selectAttachment,
     addAttachment,
+    currentAttachment,
     removeAttachment,
   } = useAnnotations()
+
+  const handleDescriptionChange = () => {
+    const el = descriptionRef.current;
+    if(!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';    
+  }
+  handleDescriptionChange()
+
+  // useEffect(() => {
+  //   handleDescriptionChange()
+  // }, [currentAttachment])
 
   const { toast } = useToast()
   const [screenshotFunction] = registerScreenshotFunction
@@ -111,14 +125,6 @@ export function EvidenceForm({
       ),
     })
   }
-
-  const handleDescriptionChange = () => {
-    const el = descriptionRef.current;
-    if(!el) return;
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';    
-  }
-  handleDescriptionChange()
 
   const onSubmit = async (data) => {
     const evidencieId = searchParams.get('evidenciaId')
@@ -206,7 +212,7 @@ export function EvidenceForm({
               onInput={handleDescriptionChange}
               disabled={readOnly}
               readOnly={readOnly}
-              className="w-full overflow-hidden resize-none bg-transparent p-0 m-0 outline-none border-none"
+              className="min-h-8 w-full overflow-hidden resize-none bg-transparent p-0 m-0 outline-none border-none"
               // onChange={handleDescriptionChange}
             />
 

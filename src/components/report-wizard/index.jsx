@@ -2,14 +2,15 @@ import { Check, ChevronLeft, ChevronRight, FileText, ImageIcon, MapPin } from "l
 import { useEffect, useState } from "react"
 
 import { useToast } from "../../hooks/use-toast"
-import { EvidenceStep } from "../evidence-step"
-import { LocalizationStep } from "../localization-step"
 import { Button } from "../ui/button"
 import { Card } from "../ui/card"
+import { EvidenceStep } from "./evidence-step"
+import { LocalizationStep } from "./localization-step"
 
 import { useParams, useSearchParams } from "react-router"
 import { api } from "../../services/api"
-import { InspectionForm } from "../details-step"
+import { ConclusionStep } from "./conclusion-step"
+import { InspectionForm } from "./details-step"
 
 export default function ReportWizard({ initialData, onSubmit }) {
   const { toast } = useToast()
@@ -50,6 +51,7 @@ export default function ReportWizard({ initialData, onSubmit }) {
     { name: "Localização", icon: MapPin, component: LocalizationStep },
     { name: "Características Gerais", icon: FileText, component: InspectionForm },
     { name: "Evidências", icon: ImageIcon, component: EvidenceStep },
+    { name: "Conclusão", icon: ImageIcon, component: ConclusionStep },
   ]
 
   useEffect(() => {
@@ -169,7 +171,7 @@ export default function ReportWizard({ initialData, onSubmit }) {
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
-                <Button onClick={handleSubmit}>Enviar Relatório</Button>
+                <Button onClick={handleSubmit}>Ir para o relatório</Button>
               )}
             </div>
           </Card>

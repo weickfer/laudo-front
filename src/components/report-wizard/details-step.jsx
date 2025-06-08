@@ -1,10 +1,10 @@
 import React from "react"
 
-import { Checkbox } from "./ui/checkbox"
-import { Input } from "./ui/input"
-import { Label } from "./ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { Textarea } from "./ui/textarea"
+import { Checkbox } from "../ui/checkbox"
+import { Input } from "../ui/input"
+import { Label } from "../ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Textarea } from "../ui/textarea"
 
 export function InspectionForm({ formData, updateFormData }) {
   return (

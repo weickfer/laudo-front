@@ -3,7 +3,7 @@ import { SidebarProvider } from "../../contexts/sidebar";
 import { Modal } from "../modal";
 import { Sidebar } from "./sidebar";
 
-export function ImageEditorWithTools({ imageUrl, vectors, onSave, sidebarEnabled = true }) {
+export function ImageEditorWithTools({ imageUrl, vectors, onSave, sidebarEnabled = true, onCancel }) {
   return (
     <SidebarProvider>
       <div className="flex flex-row">
@@ -15,7 +15,7 @@ export function ImageEditorWithTools({ imageUrl, vectors, onSave, sidebarEnabled
           )
         }
         <div className="mx-auto">
-          <ImageEditorCore url={imageUrl} cachedVectors={vectors} onSubmit={onSave} />
+          <ImageEditorCore url={imageUrl} cachedVectors={vectors} onSubmit={onSave} onCancel={onCancel} />
         </div>
       </div>
     </SidebarProvider>

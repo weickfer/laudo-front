@@ -1,8 +1,6 @@
-import { FileText, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { FileText, Pencil } from "lucide-react";
 import Markdown from "react-markdown";
-import { useParams } from "react-router";
-import { api } from "../../services/api";
+import { useNavigate, useParams } from "react-router";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
@@ -20,20 +18,8 @@ const markdownComponents = {
 };
 
 export function Conclusion({ data }) {
-  const [conclusion, setConclusion] = useState(data?.conclusao ?? null)
-  const [isGenerating, setIsGenerating] = useState(false)
-
-  const handleGenerateConclusion = async () => {
-    setIsGenerating(true)
-
-    const response = await api(`/api/v2/relatorios/${id}/ai-conclusao`, 'POST')
-
-    if (response?.id) {
-      setConclusion(response)
-    }
-
-    setIsGenerating(false)
-  }
+  const conclusion = data?.conclusao ?? null
+  const navigate = useNavigate()
   const { id } = useParams()
 
   // useEffect(() => {
@@ -44,14 +30,28 @@ export function Conclusion({ data }) {
   //   })
   // }, [id])
 
+  const handleEditConclusion = () => {
+    const url = `/reports/${id}/update?step=3`
+    navigate(url)
+  }
+
   return (
     <section id="evidencias" className="mb-8">
-      <h2 className="text-xl font-semibold text-blue-900 mb-4">Conclusão</h2>
+      <div className="flex flex-row justify-between items-center">
+        <h2 className="text-xl font-semibold text-blue-900">Conclusão</h2>
+        {
+          conclusion && (
+            <Button onClick={handleEditConclusion}>
+              <Pencil /> Editar
+            </Button>
+          )
+        }
+      </div>
 
       {
         conclusion ? (
-          <Card className="p-2 max-w-full overflow-hidden">
-            <div className="flex flex-row gap-2">
+          <Card className="mt-4 p-2 max-w-full overflow-hidden">
+            <div className="flex flex-row gap-2 items-center">
               <Badge className="bg-blue-100 text-blue-800 border-blue-200">Gerado por IA</Badge>
               <Badge className="bg-blue-100 text-blue-800 border-blue-200">{conclusion?.iaVersion}</Badge>
 
@@ -64,7 +64,7 @@ export function Conclusion({ data }) {
                 })
               }</span>
             </div>
-            <div className="max-w-[600px] overflow-x-auto break-words">
+            <div className="mt-4 max-w-[600px] overflow-x-auto break-words">
               <Markdown components={markdownComponents}>
                 {conclusion.conclusao}
               </Markdown>
@@ -88,7 +88,7 @@ export function Conclusion({ data }) {
               <div className="bg-gray-50 p-6 rounded-lg border border-dashed border-gray-300 flex flex-col items-center justify-center min-h-[180px]">
                 <FileText className="h-12 w-12 text-gray-400 mb-3" />
                 <p className="text-gray-600 text-center max-w-md">
-                  Clique no botão abaixo para gerar sua conclusão.
+                  Clique no botão abaixo para criar sua conclusão.
                 </p>
               </div>
             </CardContent>
@@ -96,18 +96,10 @@ export function Conclusion({ data }) {
             <CardFooter className="flex justify-center pt-2 pb-6">
               <Button
                 size="lg"
-                onClick={handleGenerateConclusion}
-                disabled={isGenerating}
+                onClick={handleEditConclusion}
                 className="px-8 py-6 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg"
               >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Gerando conclusão...
-                  </>
-                ) : (
-                  "Gerar conclusão"
-                )}
+                Criar conclusão
               </Button>
             </CardFooter>
           </Card>

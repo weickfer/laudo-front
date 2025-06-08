@@ -373,7 +373,7 @@ export function ViewReport() {
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
                                     <Button variant="secondary" size="sm" className="text-xs" onClick={() => handleOpenEvidence(evidence)}>
-                                      Ampliar
+                                      Editar
                                     </Button>
                                   </div>
                                 </div>

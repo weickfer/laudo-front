@@ -7,7 +7,7 @@ import { createArrow, createCircle, createRectangle, createTextBox, editArrow, e
 import { getObjectByPosition, parseToVector, resizeCanvas, vectorToObject } from "./utils";
 
 
-export function ImageEditor({ url, cachedVectors = [], onSubmit }) {
+export function ImageEditor({ url, cachedVectors = [], onSubmit, onCancel }) {
   const [annotationType, toggleTool] = useSidebar()
   const [canvas, setCanvas] = useState()
   const canvasRef = useRef(null);
@@ -286,12 +286,20 @@ export function ImageEditor({ url, cachedVectors = [], onSubmit }) {
       <canvas className="image-editor" ref={canvasRef} />
       {
         !readOnly && (
-          <button
-            onClick={handleSaveVectors}
-            className="mt-2 w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-700"
-          >
-            Salvar
-          </button>
+          <div className="flex flex-col gap-2">
+              <button
+                onClick={handleSaveVectors}
+                className="mt-2 w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-700"
+              >
+                Salvar
+              </button>
+              <button
+                onClick={onCancel}
+                className="w-full bg-stone-400 text-white p-2 rounded-lg hover:bg-stone-500"
+              >
+                Cancelar
+              </button> 
+          </div>
         )
       }
     </>

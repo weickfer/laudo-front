@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react"
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 // import { EvidenceForm } from "./ev"
 import { Plus } from "lucide-react"
 import { useNavigate, useParams, useSearchParams } from "react-router"
-import { ImageEditorWithTools } from "../modules/annotations/components/image-editor/modal"
-import { useAnnotations } from "../modules/annotations/contexts/annotations"
-import { api } from "../services/api"
-import { EvidenceForm } from "./evidence-form"
-import { DataTable } from "./tables/data-table"
-import { columns } from "./tables/evidence-columns"
+import { ImageEditorWithTools } from "../../modules/annotations/components/image-editor/modal"
+import { useAnnotations } from "../../modules/annotations/contexts/annotations"
+import { api } from "../../services/api"
+import { EvidenceForm } from "../evidence-form"
+import { DataTable } from "../tables/data-table"
+import { columns } from "../tables/evidence-columns"
 
 export function EvidenceStep({ formData, updateFormData }) {
   const { id: reportId } = useParams()
@@ -17,7 +17,7 @@ export function EvidenceStep({ formData, updateFormData }) {
   // const evidenceId = searchParams.get('evidenciaId')
   const [evidenceList, setEvidenceList] = useState(formData.evidencias ?? [])
   const [showForm, setShowForm] = useState(false)
-  const { currentAttachment, updateAttachment, addAttachment } = useAnnotations()
+  const { currentAttachment, updateAttachment, addAttachment, deselectAttachment } = useAnnotations()
   const [selectedEvidence, setSelectedEvidence] = useState(null)
 
   useEffect(() => {
@@ -44,6 +44,7 @@ export function EvidenceStep({ formData, updateFormData }) {
     if(!response) return
 
     searchParams.delete('evidenciaId')
+    searchParams.delete('new')
     setSearchParams(searchParams)
 
     const actions = {
@@ -62,8 +63,15 @@ export function EvidenceStep({ formData, updateFormData }) {
     setShowForm(false)
   }
 
-  const handleCloseForm = () => {
+  const handleCloseForm = async () => {
+    const isNew = Boolean(searchParams.get('new') ?? false)
+
+    if(isNew) {
+      const evidenceId = searchParams.get('evidenciaId')
+      await api(`/api/v2/evidencias/${evidenceId}`, 'DELETE')
+    }
     searchParams.delete('evidenciaId')
+    searchParams.delete('new')
     setSearchParams(searchParams)
     setShowForm(false)
     setSelectedEvidence(null)
@@ -90,11 +98,12 @@ export function EvidenceStep({ formData, updateFormData }) {
     if(response?.evidenciaId) {
       const searchParams = new URLSearchParams(location.search)
       searchParams.set('evidenciaId', response.evidenciaId)
+      searchParams.set('new', 'true')
 
       navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true })
     }
   }
-
+  
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -104,9 +113,14 @@ export function EvidenceStep({ formData, updateFormData }) {
         </p>
       </div>
 
-      <Button onClick={handleToggleEvidenceForm} variant="outline">
-        <Plus className="mr-2 h-4 w-4" /> {showForm ? "Cancelar" : "Adicionar Evidência"}
-      </Button>
+      {
+        !showForm && (
+          <Button onClick={handleToggleEvidenceForm} variant="outline">
+            <Plus className="mr-2 h-4 w-4" /> 
+            Adicionar Evidência
+          </Button>
+        )
+      }
 
       {showForm && (
         <div className={currentAttachment?.url && 'hidden'}>
@@ -119,6 +133,7 @@ export function EvidenceStep({ formData, updateFormData }) {
           imageUrl={currentAttachment?.url}
           onSave={updateAttachment}
           vectors={currentAttachment?.vectors}
+          onCancel={deselectAttachment}
         />
       )}
 

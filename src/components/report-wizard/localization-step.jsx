@@ -1,12 +1,12 @@
 import { Plus } from "lucide-react"
 import React, { useState } from "react"
-import { Label } from "./ui/label"
+import { Label } from "../ui/label"
 
 import { useParams } from "react-router"
-import { dataURLtoFile } from "../lib/base64-to-file"
-import { Attachment } from "../modules/annotations/components/annotation-form/attachment"
-import { MapControl, MapProvider, OlMap } from '../modules/gis-viewer'
-import { api } from "../services/api"
+import { dataURLtoFile } from "../../lib/base64-to-file"
+import { Attachment } from "../../modules/annotations/components/annotation-form/attachment"
+import { MapControl, MapProvider, OlMap } from '../../modules/gis-viewer'
+import { api } from "../../services/api"
 
 export function LocalizationStep({ formData, updateFormData }) {
   const { id: reportId } = useParams()
@@ -30,7 +30,7 @@ export function LocalizationStep({ formData, updateFormData }) {
       latitude: coords.latitude,
       longitude: coords.longitude,
       imagemNome: id,
-      url: imageUrl
+      url: imageUrl,
     }
     const updatedGeolocations = [...geolocations, newGeolocation]
     setGeolocations(updatedGeolocations)
@@ -57,27 +57,7 @@ export function LocalizationStep({ formData, updateFormData }) {
       xhr.send(file);
     }
   }
-
-  // const handleAddLocationImage = (e) => {
-  //   const file = e?.target?.files?.[0]
-
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = (e) => {
-  //       const id = `${Date.now()}-${Math.floor(Math.random() * 1000)}`
-  //       const updatedLocationsImage = [...locationsImage, {
-  //         id,
-  //         imagemNome: file.name,
-  //         url: e.target.result
-  //       }]
-  //       setLocationsImage(updatedLocationsImage)
-  //       updateFormData({ locationsImage: updatedLocationsImage })
-  //     };
-  //     reader.readAsDataURL(file);
-  //     return
-  //   }
-  // }
-
+  
   const handlePDFChange = async (e) => {
     const file = e.target.files[0];
     if (file && file.type === "application/pdf") {
