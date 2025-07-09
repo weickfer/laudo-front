@@ -3,7 +3,7 @@ const isDeveloping = import.meta.env.MODE === 'development'
 export const API_URL =
   isDeveloping
     ? 'http://localhost:3000' 
-    : 'https://apilaudo.inbimplus.app.br/'
+    : 'https://apilaudo.inbimplus.app.br'
 
 export async function api(path, method = 'GET', body = null) {
   const response = await fetch(`${API_URL}${path}`, {
